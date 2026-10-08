@@ -36,6 +36,17 @@ jobs:
       - name: Export JS bundle into APK assets
         run: npx expo export --platform android --output-dir android/app/src/main/assets
 
+      - name: Place bundle at RN-expected path (assets/index.android.bundle)
+        run: |
+          set -e
+          BUNDLE=$(find android/app/src/main/assets/_expo/static/js/android -name 'entry-*.hbc' -print -quit)
+          if [ -z "$BUNDLE" ]; then
+            echo "ERROR: expo export did not produce a bundle under android/app/src/main/assets/_expo/static/js/android"
+            exit 1
+          fi
+          cp "$BUNDLE" android/app/src/main/assets/index.android.bundle
+          echo "Bundle installed at android/app/src/main/assets/index.android.bundle"
+
       - name: Grant execute permission for gradlew
         run: chmod +x android/gradlew
 
